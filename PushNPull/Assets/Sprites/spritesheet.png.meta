@@ -1,9 +1,10 @@
 fileFormatVersion: 2
 guid: c8d4711fd7634264c8c685a18eb09384
-timeCreated: 1508213531
+timeCreated: 1508297007
 licenseType: Free
 TextureImporter:
-  fileIDToRecycleName: {}
+  fileIDToRecycleName:
+    21300000: MetalBlockSingle
   externalObjects: {}
   serializedVersion: 4
   mipmaps:
@@ -103,7 +104,21 @@ TextureImporter:
     overridden: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: MetalBlockSingle
+      rect:
+        serializedVersion: 2
+        x: 439
+        y: 94
+        width: 21
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
     outline: []
     physicsShape: []
   spritePackingTag: 
