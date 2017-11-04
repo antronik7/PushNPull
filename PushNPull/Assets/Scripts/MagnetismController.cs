@@ -9,20 +9,29 @@ public class MagnetismController : MonoBehaviour {
     [SerializeField]
     float maxMagnetForce = 100f;
     [SerializeField]
+    float slowDownStrengh = 0.25f;
+    [SerializeField]
+    float minimumSlowDownSpeed = 0.1f;
+    [SerializeField]
+    float magnetMultiplicatorX = 2f;
+    [SerializeField]
     GameObject avatar;
     [SerializeField]
     GameObject magneticPoint;
-
+    
     Rigidbody2D avatarRB;
     Transform avatarTransform;
+    KnightController knightController;
     Transform magneticPointTransform;
 
     bool buttonIsPressed = false;
+    bool avatarIsAttached = false;
 
     // Use this for initialization
     void Start () {
         avatarRB = avatar.GetComponent<Rigidbody2D>();
         avatarTransform = avatar.GetComponent<Transform>();
+        knightController = avatar.GetComponent<KnightController>();
         magneticPointTransform = magneticPoint.GetComponent<Transform>();
     }
 	
@@ -30,38 +39,35 @@ public class MagnetismController : MonoBehaviour {
 	void Update () {
         if (buttonIsPressed)
         {
-            Vector2 directionForce = magneticPointTransform.position - avatarTransform.position;
-            float step = ComputeMagnetForce(directionForce.magnitude) * Time.deltaTime;
-            avatarTransform.position = Vector3.MoveTowards(avatarTransform.position, magneticPointTransform.position, step);
+            if (!avatarIsAttached && IsAvaterOnMagneticPoint())
+                avatarIsAttached = true;
+
+            if(avatarIsAttached)
+                avatarTransform.position = magneticPointTransform.position;
+            else if(avatarRB.velocity.y != 0f)
+            {
+                avatarRB.velocity *= slowDownStrengh;
+                if (avatarRB.velocity.y <= minimumSlowDownSpeed)
+                    avatarRB.velocity *= 0f;
+            }
+            else
+                PullAvatar();
         }
-    }
-
-    private void FixedUpdate()
-    {
-        /*if (buttonIsPressed)
-        {
-            Vector2 directionForce = magneticPointTransform.position - avatarTransform.position;
-            float force = ComputeMagnetForce(directionForce.magnitude);
-            directionForce.Normalize();
-
-            avatarRB.AddForce(directionForce * force * Time.deltaTime);
-        }*/
     }
 
     void OnMouseDown()
     {
         buttonIsPressed = true;
+
+        knightController.AttractPlayer();
     }
 
     void OnMouseUp()
     {
         buttonIsPressed = false;
+        avatarIsAttached = false;
 
-        if (IsAvaterOnMagneticPoint())
-        {
-            avatarRB.velocity = Vector2.zero;
-            avatarRB.AddForce(new Vector2(0, 1) * 5f, ForceMode2D.Impulse);
-        }
+        knightController.ReleasePlayer();
     }
 
     float ComputeMagnetForce(float distance)
@@ -75,5 +81,16 @@ public class MagnetismController : MonoBehaviour {
             return true;
 
         return false;
+    }
+
+    void PullAvatar()
+    {
+        Vector2 directionForce = magneticPointTransform.position - avatarTransform.position;
+        float step = ComputeMagnetForce(directionForce.magnitude) * Time.deltaTime;
+        float y = Vector3.MoveTowards(avatarTransform.position, magneticPointTransform.position, step).y;
+        step *= magnetMultiplicatorX;
+        float x = Vector3.MoveTowards(avatarTransform.position, magneticPointTransform.position, step).x;
+
+        avatar.transform.position = new Vector2(x, y);
     }
 }
